@@ -6,7 +6,7 @@ import io.ktor.server.application.*
 import io.ktor.server.plugins.contentnegotiation.*
 
 
-fun Application.configurecontentNegotiation(){
+fun Application.configureContentNegotiation(){
     install(ContentNegotiation){
         json()
         xml()
