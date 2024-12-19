@@ -19,6 +19,7 @@
 9. Déploiement de l'application
 10. Conclusion
 ### Remarque:
+[RFC 7231](https://datatracker.ietf.org/doc/html/rfc7231#section-6.1)
 ```kotlin
 +------+-------------------------------+--------------------------+
 | Code | Reason-Phrase                 | Defined in...            |
