@@ -1,14 +1,10 @@
-.my-table {
-    width: 100%;
-    border-collapse: collapse;
+.my-table-centered {
+margin: 0 auto;
+text-align: center;
+border-collapse: collapse;
 }
-
-.my-table th, .my-table td {
-    padding: 8px;
-    text-align: left;
-}
-
-.centered {
-    margin: 0 auto;
-    text-align: center;
+.my-table-centered
+th,.my-table-centered td {
+padding: 8px 12px;
+border: 1px solid #ddd;
 }
