@@ -40,6 +40,7 @@ fun Application.configureRouting() {
             call.respondHtml(HttpStatusCode.OK) {
                 body {
                     p {
+                        id = "intro-paragraph"
                         text("Hello ${username}")
                     }
                 }
@@ -79,6 +80,25 @@ fun Application.configureRouting() {
         }
         get("/index") {
             call.respond(FreeMarkerContent("index.ftl", null))
+        }
+        get("/web/info") {
+            call.respondHtml {
+                body {
+                    h1 { +"Heading 1" }
+                    p {
+                        id = "intro-paragraph"
+                        classes = setOf("intro")
+                        style = "color: red; font-size: 16px;"
+                        +"Voici une démonstration de kotlinx.html."
+                    }
+                    div(classes = "container left tree") {
+                        a("https://kotlinlang.org") {
+                            target = ATarget.blank
+                            +"Main site"
+                        }
+                    }
+                }
+            }
         }
     }
 }
