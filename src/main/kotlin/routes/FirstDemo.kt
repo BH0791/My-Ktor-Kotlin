@@ -12,7 +12,7 @@ import io.ktor.server.routing.*
 import kotlinx.html.*
 import org.slf4j.LoggerFactory
 
-fun Application.configureRouting() {
+fun Application.configureRoutingFist() {
     val logger = LoggerFactory.getLogger("\n\nApplication")
     routing {
         staticResources("/static", "static")
