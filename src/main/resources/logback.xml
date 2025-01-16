@@ -1,7 +1,7 @@
 <configuration>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%highlight(%-5level){FATAL=red, ERROR=red, WARN=yellow, INFO=green, DEBUG=cyan, TRACE=blue}  %yellow(%d{yyyy-MM-dd HH:mm:ss}) %red(%-5level) %logger{36} - %green(%msg%n) </pattern>
         </encoder>
     </appender>
 
@@ -9,3 +9,7 @@
         <appender-ref ref="STDOUT" />
     </root>
 </configuration>
+        <!-- %highlight(%-5level) [%thread] %logger{0} - %msg%n -->
+        <!-- %highlight(%-5level){FATAL=red, ERROR=red, WARN=yellow, INFO=green, DEBUG=cyan, TRACE=blue} %d{yyyy-MM-dd HH:mm:ss} [%thread] %cyan(%logger{15}) -->
+        <!-- %highlight(%d{yyyy-MM-dd HH:mm:ss} %-5level) %logger{36} - %msg%n -->
+<!-- End of file -->
