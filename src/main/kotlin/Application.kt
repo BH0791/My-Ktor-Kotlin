@@ -17,8 +17,8 @@ fun main(args: Array<String>) {
 
 fun Application.module() {
     val jwtSecret: String = environment.config.property("ktor.jwt.secret").getString()
-    log.info("JWT Secret: $jwtSecret")
-    println("********>>>> $jwtSecret")
+    //log.info("JWT Secret: $jwtSecret")
+    //println("********>>>> $jwtSecret")
     configureContentNegotiation()
     configureRequestValidation()
     configureStatusPages()
