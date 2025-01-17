@@ -19,7 +19,7 @@ fun Application.configureRoutingSecond() {
     routing {
         authentication {
             post("/lolo"){
-                LogUtil.info("HamtecLog Requête POST reçue à /login")
+                LogUtil.info("Requête POST reçue à /login")
                 val userCredentials = call.receive<UserCredentials>()
                 if(userCredentials.username == "kotlin" && userCredentials.password == "book"){
                     val token = JWT.create()
