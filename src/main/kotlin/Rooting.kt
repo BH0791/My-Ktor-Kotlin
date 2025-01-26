@@ -1,11 +1,12 @@
 package fr.hamtec
 
-import fr.hamtec.routes.configureSwaggerUI
+import fr.hamtec.routes.cofigureGDVD
 import io.ktor.server.application.*
 
 fun Application.configureRouting() {
 //    configureRoutingFist()
 //    configureRoutingSecond()
 //    configureOpenAPI()
-    configureSwaggerUI()
+//    configureSwaggerUI()
+    cofigureGDVD()
 }

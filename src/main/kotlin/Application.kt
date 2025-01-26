@@ -1,13 +1,20 @@
 package fr.hamtec
 
+import fr.hamtec.bd.configurationBD
+import fr.hamtec.bd.migrateDatabase
 import fr.hamtec.plugins.*
+import fr.hamtec.routes.configureBaseDonnee
+import io.github.cdimascio.dotenv.Dotenv
 import io.ktor.server.application.*
 import io.ktor.server.cio.*
+import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 
-//Logger
-val log = LoggerFactory.getLogger(Application::class.java)
-
+val logHeader = LoggerFactory.getLogger("Application-Header-perso")
+val jwtSecret: String by lazy {
+    val dotenv = Dotenv.load()
+    dotenv["JWT_SECRET"] ?: "default_secret"
+}
 //+ Point d'entrée de l'application
 //+ La fonction main de l'application peut simplement appeler la fonction main du moteur HTTP choisi.
 fun main(args: Array<String>) {
@@ -16,14 +23,15 @@ fun main(args: Array<String>) {
 
 
 fun Application.module() {
-    val jwtSecret: String = environment.config.property("ktor.jwt.secret").getString()
-    //log.info("JWT Secret: $jwtSecret")
-    //println("********>>>> $jwtSecret")
+    //logHeader.info("JWT Secret: $jwtSecret")
+    runBlocking {
+        configurationBD()
+    }
+
     configureContentNegotiation()
     configureRequestValidation()
-    configureStatusPages()
-    configureTemplating()
-    configureAuthentication()
-    configureRouting()
+    configureStatusPage()
+    configureAuthentification()
+    configureBaseDonnee()
 }
 
