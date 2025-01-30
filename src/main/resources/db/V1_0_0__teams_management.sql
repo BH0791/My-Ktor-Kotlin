@@ -1,5 +1,5 @@
 create table teams (
-    id uuid primary key,
+    id primary key,
     name varchar not null,
     country varchar not null
 );
@@ -7,7 +7,7 @@ create table teams (
 create unique index teams_country_and_name_idx on teams (country, name);
 
 create table players (
-    id uuid primary key,
+    id primary key,
     first_name varchar not null,
     last_name varchar not null,
     preferred_jersey_number int not null,
