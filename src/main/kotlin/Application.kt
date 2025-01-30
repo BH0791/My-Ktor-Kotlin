@@ -1,5 +1,7 @@
 package fr.hamtec
 
+import fr.hamtec.bd.Players
+import fr.hamtec.bd.Teams
 import fr.hamtec.bd.configurationBD
 import fr.hamtec.bd.migrateDatabase
 import fr.hamtec.plugins.*
@@ -8,6 +10,8 @@ import io.github.cdimascio.dotenv.Dotenv
 import io.ktor.server.application.*
 import io.ktor.server.cio.*
 import kotlinx.coroutines.runBlocking
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 
 val logHeader = LoggerFactory.getLogger("Application-Header-perso")
@@ -33,5 +37,15 @@ fun Application.module() {
     configureStatusPage()
     configureAuthentification()
     configureBaseDonnee()
+
+    // Vérification du schéma avec Exposed
+    transaction {
+        val statements = SchemaUtils.statementsRequiredToActualizeScheme(Teams, Players)
+        if(statements.isNotEmpty()) {
+            log.info("Des changements de schéma sont nécessaires : ${statements.joinToString()}")
+        } else {
+            log.info("Le schéma de la base de données est à jour.")
+        }
+    }
 }
 

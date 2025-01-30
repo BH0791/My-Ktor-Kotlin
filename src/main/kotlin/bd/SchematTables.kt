@@ -1,5 +1,6 @@
 package fr.hamtec.bd
 
+import fr.hamtec.bd.Teams.id
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.ReferenceOption
@@ -9,26 +10,34 @@ import org.jetbrains.exposed.sql.charLength
 
 object Teams : IntIdTable("teams") {
     val name: Column<String?> = varchar("name", 128).nullable()
+
     init {
         name.charLength().greater(3)
         index(
-            "team_and_id_index",
+            customIndexName = "team_custom_id_index",
             isUnique = true,
-            )
+            id,
+            name
+        )
     }
 }
 
-object Players : Table("players") {
+object Players : IntIdTable("players") {
     val firstName = varchar("first_name", 128).nullable()
     val teamId = reference(
         "team_id",
         Teams.id, fkName = "players_team_fk",
-        onDelete = ReferenceOption.CASCADE)
+        onDelete = ReferenceOption.CASCADE
+    )
+
     init {
         firstName.charLength().greater(3)
-        Players.index(
-            "player_and_id_index",
+
+        index(
+            customIndexName = "player_custom_id_index",
             isUnique = true,
+            id,
+            firstName
         )
     }
 }
