@@ -1,11 +1,9 @@
 package fr.hamtec.bd
 
-import fr.hamtec.bd.Teams.id
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.greater
-import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.charLength
 
 object Teams : IntIdTable("teams") {
