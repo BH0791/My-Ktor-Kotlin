@@ -1,7 +1,9 @@
 package fr.hamtec.routes
 
+import fr.hamtec.bd.Teams
 import fr.hamtec.dao.TeamDAO
 import fr.hamtec.data.Team
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -14,6 +16,13 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 fun Application.configureBaseDonnee() {
     routing {
+        get("/ajouter") {
+            val insertedTeam: TeamDAO = transaction {
+                TeamDAO.new {
+                    name = "Laos"
+                }
+            }
+        }
         get("/afficheDB") {
             // Envelopper les opérations de base de données dans un bloc runBlocking
             runBlocking {
@@ -72,13 +81,13 @@ fun Application.configureBaseDonnee() {
                     }
 
                     // Vérification et réponse
-                    if (teamList.isNotEmpty()) {
+                    if(teamList.isNotEmpty()) {
                         call.respond(teamList)
                     } else {
                         log.error("No teams found")
                         call.respond("No teams found")
                     }
-                } catch (e: Exception) {
+                } catch(e: Exception) {
                     log.error("Error fetching teams: ${e.message}", e)
                     call.respond("An error occurred while fetching teams")
                 }
@@ -89,28 +98,121 @@ fun Application.configureBaseDonnee() {
                 try {
                     // Récupérer et mapper les équipes dans un bloc de transaction sécurisé
                     // Utiliser newSuspendedTransaction pour garantir que toutes les opérations sont dans un contexte transactionnel sécurisé
-                    val teamList: List<Team> = newSuspendedTransaction {
-                        val allTeams: SizedIterable<TeamDAO> = fetchAllTeamsSafely()
+//                    val teamList: List<Team> = newSuspendedTransaction {
+//                        val allTeams: SizedIterable<TeamDAO> = fetchAllTeamsSafely()
+//                        allTeams.map { team ->
+//                            Team(team.id.value, team.name)
+//                        }
+//                    }
+                    //*Bonnes Pratiques pour Utiliser SizedIterable<TeamDAO>
+                    val teamList: List<Team> = transaction {
+                        val allTeams: SizedIterable<TeamDAO> = TeamDAO.all()
                         allTeams.map { team ->
                             Team(team.id.value, team.name)
                         }
                     }
-
                     // Vérifier et répondre
-                    if (teamList.isNotEmpty()) {
+                    if(teamList.isNotEmpty()) {
                         call.respond(teamList)
                     } else {
                         log.error("No teams found")
                         call.respond("No teams found")
                     }
-                } catch (e: Exception) {
+                } catch(e: Exception) {
                     log.error("Error fetching teams: ${e.message}", e)
                     call.respond("An error occurred while fetching teams")
                 }
             }
         }
+        get("/bd20") {
+            try {
+                val teamList: List<Team> = transaction {
+                    val allTeams: SizedIterable<TeamDAO> = TeamDAO.all().limit(20, offset = 0)
+                    allTeams.map { team ->
+                        Team(team.id.value, team.name)
+                    }
+                }
+
+                // Vérifier et répondre
+                call.respond(teamList)
+
+            } catch(e: Exception) {
+                log.error("Error fetching teams: ${e.message}", e)
+                call.respond("An error occurred while fetching teams")
+            }
+        }
+        get("//teams/{id}") {
+            val teamId = call.parameters["id"]?.toIntOrNull()
+            if(teamId == null) {
+                call.respond(HttpStatusCode.BadRequest, "ID invalide.")
+                return@get
+            }
+            try {
+                val team = newSuspendedTransaction {
+                    TeamDAO.findById(teamId)
+                }
+
+                if(team != null) {
+                    call.respond(Team(team.id.value, team.name))
+                } else {
+                    call.respond(HttpStatusCode.NotFound, "Équipe non trouvée.")
+                }
+            } catch(e: Exception) {
+                call.respond(HttpStatusCode.InternalServerError, "Erreur interne du serveur.")
+            }
+        }
+        //+http://127.0.0.1:8080/findByName?name=France
+        get("/findByName") {
+            val nameParam = call.request.queryParameters["name"]
+            if(nameParam == null) {
+                call.respond(HttpStatusCode.BadRequest, "Le paramètre 'name' est manquant.")
+                return@get
+            }
+
+            val teams = newSuspendedTransaction {
+                TeamDAO.find { Teams.name eq nameParam }
+                    .map { teamDAO ->
+                        Team(id = teamDAO.id.value, name = teamDAO.name)
+                    }
+            }
+
+            if(teams.isNotEmpty()) {
+                call.respond(teams)
+            } else {
+                call.respond(HttpStatusCode.NotFound, "Aucune équipe trouvée avec le nom '$nameParam'.")
+            }
+        }
+        get("/teams/notInList") {
+            /**
+             * Explications supplémentaires :
+             * Route définie : La route /teams/notInList permet d'accéder à la liste des équipes dont le nom n'est pas "France" ou "Spain".
+             *
+             * Transaction asynchrone : L'utilisation de newSuspendedTransaction permet d'effectuer la transaction de manière asynchrone, ce qui est adapté pour les applications web basées sur Ktor.
+             *
+             * Classe Team sérialisable : En annotant la classe Team avec @Serializable, vous facilitez la sérialisation en JSON lors de la réponse HTTP.
+             */
+            try {
+                // Exécution de la transaction de manière asynchrone
+                val teams = newSuspendedTransaction {
+                    TeamDAO.find { Teams.name notInList listOf("France", "Spain") }
+                        .map { teamDAO ->
+                            Team(id = teamDAO.id.value, name = teamDAO.name)
+                        }
+                }
+
+                if (teams.isNotEmpty()) {
+                    call.respond(teams)
+                } else {
+                    call.respond(HttpStatusCode.NotFound, "Aucune équipe correspondante trouvée.")
+                }
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.InternalServerError, "Erreur lors de la récupération des équipes : ${e.message}")
+            }
+        }
+
     }
 }
+
 
 // Méthode pour récupérer toutes les équipes
 suspend fun fetchAllTeams(): List<Team> {
