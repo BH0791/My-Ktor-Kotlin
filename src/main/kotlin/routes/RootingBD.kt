@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.sql.SizedIterable
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -209,7 +210,32 @@ fun Application.configureBaseDonnee() {
                 call.respond(HttpStatusCode.InternalServerError, "Erreur lors de la récupération des équipes : ${e.message}")
             }
         }
+        get("/teams/filter") {
+            try {
+                /**
+                 * Votre requête est correctement écrite pour récupérer les équipes qui ne sont pas "France" ou "Spain"
+                 * et dont l'ID est inférieur à 10. En l'intégrant correctement dans un bloc transactionnel et en vous
+                 * assurant que toutes les importations et dépendances sont en place, vous devriez être en mesure d'obtenir
+                 * les résultats attendus.
+                 */
+                val teams = newSuspendedTransaction {
+                    TeamDAO.find {
+                        (Teams.name notInList listOf("France", "Spain")) and
+                                (Teams.id less 10)
+                    }.map { teamDAO ->
+                        Team(id = teamDAO.id.value, name = teamDAO.name)
+                    }
+                }
 
+                if (teams.isNotEmpty()) {
+                    call.respond(teams)
+                } else {
+                    call.respond(HttpStatusCode.NotFound, "Aucune équipe correspondante trouvée.")
+                }
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.InternalServerError, "Erreur lors de la récupération des équipes : ${e.message}")
+            }
+        }
     }
 }
 
