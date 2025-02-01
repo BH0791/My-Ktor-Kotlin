@@ -22,3 +22,5 @@ jwt{
     secret = ${JWT_SECRET}
 }
 ````
+
+### Utilisation de [Exposed](https://github.com/JetBrains/Exposed)
