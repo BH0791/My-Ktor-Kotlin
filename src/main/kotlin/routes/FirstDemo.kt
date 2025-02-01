@@ -19,7 +19,7 @@ fun Application.configureRoutingFist() {
         post("/teams") {
             val team = call.receive<Team>()
             logger.info("Équipe reçue: ${team.name}")
-            call.respond(HttpStatusCode.OK, team.name)
+            call.respond(HttpStatusCode.OK, "${team.name}")
         }
 //        get("/teams/{team_id}"){
 //            val teamId: Int? = call.parameters["team_id"]?.toIntOrNull()
